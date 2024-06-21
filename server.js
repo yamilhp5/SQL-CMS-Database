@@ -78,7 +78,7 @@ function askPrompts() {
         }
 
         if (choice === 'No Action') {
-            Connection.end();
+            noAction();
         }
     });
 };
@@ -207,6 +207,10 @@ function updateEmployeeRole () {
     });
 }
 
+function noAction () {
+    console.log('Goodbye!');
+    process.exit();
+}
 
 
 
