@@ -1,51 +1,214 @@
-const { Pool } = require('pg');
-const inquirer = require('inquirer');
+// const { Pool, Connection } = require('pg');
+// const inquirer = require('inquirer');
 
-const pool = new Pool(
-    {
-        // TODO: Enter PostgreSQL username
-        user: "postgres",
-        // TODO: Enter PostgreSQL password
-        password: "Santurce.21",
-        host: "localhost",
-        database: "employees",
-    },
-    console.log(`Connected to the employees_db database.`)
-);
+// const pool = new Pool(
+//     {
+//         // TODO: Enter PostgreSQL username
+//         user: "postgres",
+//         // TODO: Enter PostgreSQL password
+//         password: "Santurce.21",
+//         host: "localhost",
+//         database: "employees",
+//     },
+//     console.log(`Connected to the employees_db database.`)
+// );
 
-let client
+// let client;
 
-(async () => {
-    client = await pool.connect()
-    try {
-    } finally {
-        client.release()
-    }
-})().catch(e => console.error(e.message, e.stack))
+// (async () => {
+//     client = await pool.connect()
+//     try {
+//     } finally {
+//         client.release()
+//     }
+// })().catch(e => console.error(e.message, e.stack))
+const { prompt } = require('inquirer');
+const db = require ('./db');
+
+
+
+askPrompts();
 
 
 function askPrompts() {
-    inquirer.prompt([{
+    prompt([
+        {
         type: 'list',
         name: 'choice',
         message: 'What would you like to do?',
         choices: [
-            'View Employees',
-            'Add Employee',
+            'View all department',
+            'View all roles',
+            'View all employees',
+            'Create a role',
+            'Create an employee',
+            'Create department',
+            'Update an employee role',
+            'No Action', 
         ]
-    }]).then(async (answers) => {
-        console.log(answers)
-        if (answers.choice === 'View Employees') {
-            const { rows } = await client.query('SELECT * FROM employee;')
-            console.table(rows)
-            askPrompts()
+    }]).then((answers) => {
+        const { choices } = answers; 
+  
+        if (choices === "View all department") {
+          showDepartments();
         }
-        else if (answers.choice === 'Add Employee') {
-            const { rows } = await client.query('SELECT * FROM employee;')
-            console.table(rows)
-            askPrompts()
+  
+        if (choices === "View all roles") {
+          showRoles();
         }
+  
+        if (choices === "View all employees") {
+          showEmployees();
+        }
+  
+        if (choices === "Create a department") {
+          addDepartment();
+        }
+  
+        if (choices === "Create a role") {
+          addRole();
+        }
+  
+        if (choices === "Create an employee") {
+          addEmployee();
+        }
+  
+        if (choices === "Update an employee role") {
+          updateEmployeeRole();
+        }
+
+        if (choices === 'No Action') {
+            Connection.end();
+        }
+    });
+};
+
+function showDepartments () {
+    database.findAllDepartments()
+    .then(({rows}) => {
+        let departments = rows;
+        console.log('\n');
+        console.table(departments);
+
     })
+    .then(() => askPrompts());
 }
 
-askPrompts()
+function showRoles() {
+    database.findAllRoles()
+    .then(({rows})=> {
+        let roles = rows;
+        console.log('.\n');
+        console.table(roles);
+
+    })
+    .then(() => askPrompts());
+}
+
+function showEmployees() {
+    database.findAllEmployees()
+    .then (({rows}) => {
+        let employees = rows;
+        console.log('.\n');
+        console.table(employees);
+    })
+    .then (() => askPrompts());
+}
+ 
+function addDepartment() {
+    prompt([
+        {
+            name: 'name',
+            message: 'What is the name of the department?',
+        },
+               
+    ]).then((res) => {
+      let name = res;
+      database.createDepartment(name)
+       .then(()=> console.log(`Added ${name.name} to the database`))
+       .then(() => askPrompts());
+    });
+}
+
+function addRole () {
+    database.findAllDepartments().then(({ rows }) => {
+        let departments = rows;
+        const departmentChoices = departments.map(({ id, name }) => ({
+            name:name,
+            value:id, 
+        }));
+
+        prompt ([
+         {
+            name: 'title',
+            message: 'Please enter new role',
+
+        },
+
+        {
+            name: 'salary',
+            message: 'Please enter salary for this role',
+        
+        },
+
+        {
+            type: 'list',
+            name: 'department_id',
+            message: 'Which department does the role belong to?',
+            choices: departmentChoices,
+
+        },
+    ]) .then((role) => {
+        database.addRolele(role)
+        .then(() => console.log(`Added ${role.title} to the Database`))
+        .then(() => askPrompts());
+    });
+    });   
+
+}
+
+function updateEmployeeRole () {
+    db.findAllEmployees().then(({ rows }) => {
+        let employees = rows;
+        const employeeChoices = employees.map(({ id, first_name, last_name})=> ({
+            name: `${first_name} ${last_name}`,
+            value: id,
+        }));
+
+        prompt ([
+            {
+                type:'list',
+                name: 'employeeId',
+                message: 'Please enter role to update?',
+                choices: employeeChoices,
+            },
+        ]).then((res)=> {
+            let employeeId = res.employeeId;
+            db.findAllRoles().then (({ rows })=> {
+                let roles = rows;
+                const roleChoices = roles.map (({ id, title }) => ({
+                    name: title,
+                    value: id, 
+                }));
+
+                prompt ([
+                    {
+                        type:'list',
+                        name: 'roleId',
+                        message: 'Please assign role to selected employee',
+                        choices: roleChoices,
+                    },
+                ])
+                .then(( res )=> db.updateEmployeeRole(employeeId, res.roleId))
+                .then(() => console.log("Employee's role updated!"))
+                .then(()=> askPrompts());
+            });
+        });
+    });
+}
+
+
+
+
+
+ 

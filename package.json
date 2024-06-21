@@ -1,8 +1,16 @@
 {
+  "name": "sql-cms-database",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Yamil Hernandez",
+  "license": "ISC",
   "dependencies": {
-    "express.js": "^1.0.0",
     "inquirer": "^8.2.4",
-    "node.js": "^0.0.1-security",
-    "pg": "^8.11.5"
+    "pg": "^8.12.0"
   }
 }
