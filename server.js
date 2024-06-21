@@ -47,44 +47,44 @@ function askPrompts() {
             'No Action', 
         ]
     }]).then((answers) => {
-        const { choices } = answers; 
+        const { choice } = answers; 
   
-        if (choices === "View all department") {
+        if (choice === "View all department") {
           showDepartments();
         }
   
-        if (choices === "View all roles") {
+        if (choice === "View all roles") {
           showRoles();
         }
   
-        if (choices === "View all employees") {
+        if (choice === "View all employees") {
           showEmployees();
         }
   
-        if (choices === "Create a department") {
+        if (choice === "Create a department") {
           addDepartment();
         }
   
-        if (choices === "Create a role") {
+        if (choice === "Create a role") {
           addRole();
         }
   
-        if (choices === "Create an employee") {
+        if (choice === "Create an employee") {
           addEmployee();
         }
   
-        if (choices === "Update an employee role") {
+        if (choice === "Update an employee role") {
           updateEmployeeRole();
         }
 
-        if (choices === 'No Action') {
+        if (choice === 'No Action') {
             Connection.end();
         }
     });
 };
 
 function showDepartments () {
-    database.findAllDepartments()
+    db.findAllDepartments()
     .then(({rows}) => {
         let departments = rows;
         console.log('\n');
@@ -95,7 +95,7 @@ function showDepartments () {
 }
 
 function showRoles() {
-    database.findAllRoles()
+    db.findAllRoles()
     .then(({rows})=> {
         let roles = rows;
         console.log('.\n');
@@ -106,7 +106,7 @@ function showRoles() {
 }
 
 function showEmployees() {
-    database.findAllEmployees()
+    db.findAllEmployees()
     .then (({rows}) => {
         let employees = rows;
         console.log('.\n');
@@ -124,14 +124,14 @@ function addDepartment() {
                
     ]).then((res) => {
       let name = res;
-      database.createDepartment(name)
+      db.createDepartment(name)
        .then(()=> console.log(`Added ${name.name} to the database`))
        .then(() => askPrompts());
     });
 }
 
 function addRole () {
-    database.findAllDepartments().then(({ rows }) => {
+    db.findAllDepartments().then(({ rows }) => {
         let departments = rows;
         const departmentChoices = departments.map(({ id, name }) => ({
             name:name,
@@ -159,7 +159,7 @@ function addRole () {
 
         },
     ]) .then((role) => {
-        database.addRolele(role)
+        db.createRole(role)
         .then(() => console.log(`Added ${role.title} to the Database`))
         .then(() => askPrompts());
     });
